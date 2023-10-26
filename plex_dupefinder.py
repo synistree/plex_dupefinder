@@ -221,8 +221,10 @@ def write_decision(title=None, keeping=None, removed=None):
     if removed:
         lines.append('\tRemoving : %r\n' % removed)
 
-    with open(decision_filename, 'a') as fp:
-        fp.writelines(lines)
+    clean_lines: t.List[str] = [str(c_line.encode('ascii', 'ignore')) for c_line in lines]
+
+    with open(decision_filename, 'at') as fp:
+        fp.writelines(clean_lines)
     return
 
 
@@ -399,6 +401,10 @@ if __name__ == "__main__":
             print(tabulate(data, headers=headers))
 
             keep_item = input("\nChoose item to keep (0 or s = skip | 1 or b = best): ")
+            if not keep_item:
+                print('\tSkipping current item (no selection)')
+                continue
+
             if (keep_item.lower() != 's') and (keep_item.lower() == 'b' or 0 < int(keep_item) <= len(media_items)):
                 write_decision(title=item)
                 for media_id, part_info in parts.items():
